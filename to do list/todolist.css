@@ -1,0 +1,26 @@
+body {
+    padding: 20px;
+    background-color: rgb(20, 198, 195);
+  }
+  
+  h1 {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  ul li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .btn-primary {
+    margin-top: 10px;
+  }
+  
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
