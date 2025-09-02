@@ -1,0 +1,134 @@
+version: '3.8'
+
+services:
+  # MongoDB - Primary Database
+  mongodb:
+    image: mongo:7-jammy
+    container_name: riona-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USER:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD:-password}
+      MONGO_INITDB_DATABASE: ${MONGODB_DB_NAME:-riona_ai}
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    networks:
+      - riona-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Redis - Cache & Queue
+  redis:
+    image: redis:7-alpine
+    container_name: riona-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_password}
+    volumes:
+      - redis_data:/data
+    networks:
+      - riona-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Ollama - AI Model Server (Optional - can run locally)
+  # Uncomment if you want to run Ollama in Docker
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   container_name: riona-ollama
+  #   restart: unless-stopped
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama_data:/root/.ollama
+  #   networks:
+  #     - riona-network
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: all
+  #             capabilities: [gpu]
+
+  # Backend API (for production)
+  # Uncomment for production deployment
+  # backend:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   container_name: riona-backend
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     NODE_ENV: production
+  #     MONGODB_URI: mongodb://mongodb:27017/riona_ai
+  #     REDIS_URL: redis://redis:6379
+  #     OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+  #   depends_on:
+  #     - mongodb
+  #     - redis
+  #   networks:
+  #     - riona-network
+  #   volumes:
+  #     - ./backend/uploads:/app/uploads
+
+  # Frontend (for production)
+  # Uncomment for production deployment
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: riona-frontend
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3001:80"
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - riona-network
+
+  # Nginx Reverse Proxy (for production)
+  # Uncomment for production deployment
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: riona-nginx
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf
+  #     - ./infrastructure/nginx/sites:/etc/nginx/sites-enabled
+  #     - ./infrastructure/ssl:/etc/nginx/ssl
+  #   depends_on:
+  #     - backend
+  #     - frontend
+  #   networks:
+  #     - riona-network
+
+networks:
+  riona-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+    driver: local
+  mongodb_config:
+    driver: local
+  redis_data:
+    driver: local
+  ollama_data:
+    driver: local

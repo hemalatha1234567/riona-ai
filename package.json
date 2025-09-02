@@ -1,0 +1,61 @@
+{
+  "name": "riona-ai-agent",
+  "version": "3.0.0",
+  "description": "AI-powered Instagram automation platform with Ollama integration",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend",
+    "shared"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:ollama\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:ollama": "ollama serve",
+    "build": "npm run build:shared && npm run build:backend && npm run build:frontend",
+    "build:shared": "cd shared && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "cd backend && npm test",
+    "test:frontend": "cd frontend && npm test",
+    "lint": "npm run lint:backend && npm run lint:frontend",
+    "lint:backend": "cd backend && npm run lint",
+    "lint:frontend": "cd frontend && npm run lint",
+    "setup": "npm install && npm run setup:backend && npm run setup:frontend",
+    "setup:backend": "cd backend && npm install",
+    "setup:frontend": "cd frontend && npm install",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "clean": "rm -rf node_modules backend/node_modules frontend/node_modules shared/node_modules"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/riona-ai-agent.git"
+  },
+  "keywords": [
+    "instagram",
+    "automation",
+    "ai",
+    "ollama",
+    "social-media",
+    "content-generation",
+    "llama",
+    "typescript",
+    "react",
+    "hexagonal-architecture"
+  ],
+  "author": "Erik",
+  "license": "MIT"
+}
